@@ -13,7 +13,10 @@ FetchContent_Declare(glm
         GIT_TAG 0.9.9.8)
 FetchContent_MakeAvailable(glm)
 
-add_executable(MathIA src/main.cpp)
-
+add_executable(MathIA
+        src/main.cpp
+        src/ray.hpp
+        src/ray.cpp
+        src/vertex.hpp)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE glm)
