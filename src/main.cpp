@@ -20,8 +20,8 @@ const glm::dvec3 VERTICAL = glm::dvec3{0, VIEWPORT_HEIGHT, 0};
 const glm::dvec3 LOWER_LEFT_CORNER = CAMERA_ORIGIN - HORIZONTAL/2.0 - VERTICAL/2.0 - glm::dvec3{0, 0, FOCAL_LENGTH};
 
 // SCENE
-glm::dvec3 BACKGROUND_COLOR_TOP = glm::dvec3{0.5, 0.7, 1.0};
-glm::dvec3 BACKGROUND_COLOR_BOTTOM = glm::dvec3{1, 1, 1};
+const glm::dvec3 BACKGROUND_COLOR_TOP = glm::dvec3{0.5, 0.7, 1.0};
+const glm::dvec3 BACKGROUND_COLOR_BOTTOM = glm::dvec3{1, 1, 1};
 
 // Calculate color of a ray
 glm::dvec3 ray_color(const ray& r)
