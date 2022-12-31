@@ -4,6 +4,7 @@
 #include "vertex.hpp"
 #include <vector>
 #include <map>
+#include <tiny_obj_loader.h>
 
 // CONFIGURATION
 

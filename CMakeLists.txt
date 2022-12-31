@@ -13,10 +13,15 @@ FetchContent_Declare(glm
         GIT_TAG 0.9.9.8)
 FetchContent_MakeAvailable(glm)
 
+        GIT_REPOSITORY https://github.com/tinyobjloader/tinyobjloader
+        GIT_TAG v1.0.6)
+FetchContent_MakeAvailable(tinyobjloader)
+
 add_executable(MathIA
         src/main.cpp
         src/ray.hpp
         src/ray.cpp
-        src/vertex.hpp)
+        )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE glm)
+target_link_libraries(${PROJECT_NAME} PRIVATE tinyobjloader)
