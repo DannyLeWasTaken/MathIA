@@ -13,6 +13,7 @@ FetchContent_Declare(glm
         GIT_TAG 0.9.9.8)
 FetchContent_MakeAvailable(glm)
 
+FetchContent_Declare(tinyobjloader
         GIT_REPOSITORY https://github.com/tinyobjloader/tinyobjloader
         GIT_TAG v1.0.6)
 FetchContent_MakeAvailable(tinyobjloader)
