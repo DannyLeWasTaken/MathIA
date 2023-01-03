@@ -115,7 +115,7 @@ void load_scene() {
     Mesh cornell;
     cornell.load_from_obj("C:/Users/Danny Le/CLionProjects/MathIA/assets/cornell_box.obj");
     //cornell.position = glm::dvec3{-250,-100,-400};
-    cornell.setPosition(glm::dvec3{0, -250, -400});
+    cornell.setPosition(glm::dvec3{25, -275, -300});
     Scene.push_back(cornell);
 }
 
