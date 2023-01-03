@@ -24,6 +24,10 @@ public:
     bool load_from_obj(std::string filename);
 private:
     std::vector<Vertex> vertices;
+    std::vector<Triangle> triangles;
+public:
+    const std::vector<Triangle> &getTriangles() const;
+
 public:
     const std::vector<Vertex> &getVertices() const;
 };

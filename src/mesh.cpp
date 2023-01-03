@@ -38,8 +38,10 @@ bool Mesh::load_from_obj(std::string filename) {
     for (size_t s = 0; s < shapes.size(); s++)
     {
         size_t index_offset = 0;
+        // iterate over all faces
         for (size_t f = 0; f < shapes[s].mesh.num_face_vertices.size(); f++) {
             size_t fv = size_t(shapes[s].mesh.num_face_vertices[f]);
+            Triangle new_triangle;
             // Iterate all vertices in face
             for (size_t v = 0; v < fv; v++) {
                 //access to vertex
@@ -72,6 +74,7 @@ bool Mesh::load_from_obj(std::string filename) {
                 new_vert.normal.z = nz;
 
                 vertices.push_back(new_vert);
+                new_triangle.vertices[v] = new_vert;
             }
             index_offset += fv;
         }
@@ -80,4 +83,8 @@ bool Mesh::load_from_obj(std::string filename) {
 
 const std::vector<Vertex> &Mesh::getVertices() const {
     return vertices;
+}
+
+const std::vector<Triangle> &Mesh::getTriangles() const {
+    return triangles;
 }

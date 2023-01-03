@@ -82,6 +82,12 @@ glm::dvec3 ray_color(const Ray& r)
     return (1.0 - t) * BACKGROUND_COLOR_BOTTOM + t * BACKGROUND_COLOR_TOP;
 }
 
+void load_scene() {
+    Mesh monkey;
+    monkey.load_from_obj("../../assets/monkey");
+    TriangleScene = monkey.getTriangles();
+}
+
 int main() {
 
     // Rendering
@@ -91,6 +97,9 @@ int main() {
         << ' '
         << RESOLUTION_Y
         << "\n255\n";
+
+    // Scene handling
+
 
     for (int y = RESOLUTION_Y - 1; y >= 0; --y)
     {
