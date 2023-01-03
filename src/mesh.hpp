@@ -21,12 +21,13 @@ struct Triangle
 
 class Mesh {
 public:
-    bool load_from_obj(std::string filename);
+    bool load_from_obj(const char* filename);
 private:
     std::vector<Vertex> vertices;
     std::vector<Triangle> triangles;
 public:
     const std::vector<Triangle> &getTriangles() const;
+    glm::dvec3 position;
 
 public:
     const std::vector<Vertex> &getVertices() const;

@@ -5,34 +5,30 @@
 #include <vector>
 #include <iostream>
 
-
-#define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
 
 
 
-bool Mesh::load_from_obj(std::string filename) {
-    tinyobj::attrib_t  attrib;
+bool Mesh::load_from_obj(const char* filename) {
+    tinyobj::attrib_t attrib;
     std::vector<tinyobj::shape_t> shapes;
     std::vector<tinyobj::material_t> materials;
 
-    std::string warn;
-    std::string err;
+    std::string msg;
 
     tinyobj::LoadObj(
             &attrib,
             &shapes,
             &materials,
-            &err,
-            filename.c_str(),
+            &msg,
+            filename,
             nullptr,
             true
             );
 
-    if (!err.empty())
+    if (!msg.empty())
     {
-        std::cerr << "Unable to load file: " << filename << ". tinyobjloader error message: " << err << std::endl;
-        return false;
+        std::cerr << msg << std::endl;
     }
 
     for (size_t s = 0; s < shapes.size(); s++)
@@ -40,7 +36,8 @@ bool Mesh::load_from_obj(std::string filename) {
         size_t index_offset = 0;
         // iterate over all faces
         for (size_t f = 0; f < shapes[s].mesh.num_face_vertices.size(); f++) {
-            size_t fv = size_t(shapes[s].mesh.num_face_vertices[f]);
+            //size_t fv = size_t(shapes[s].mesh.num_face_vertices[f]);
+            size_t fv = 3;
             Triangle new_triangle;
             // Iterate all vertices in face
             for (size_t v = 0; v < fv; v++) {
@@ -76,9 +73,11 @@ bool Mesh::load_from_obj(std::string filename) {
                 vertices.push_back(new_vert);
                 new_triangle.vertices[v] = new_vert;
             }
+            triangles.push_back(new_triangle);
             index_offset += fv;
         }
     }
+    return true;
 }
 
 const std::vector<Vertex> &Mesh::getVertices() const {

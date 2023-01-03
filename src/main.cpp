@@ -25,8 +25,8 @@ const glm::dvec3 LOWER_LEFT_CORNER = CAMERA_ORIGIN - HORIZONTAL/2.0 - VERTICAL/2
 const glm::dvec3 BACKGROUND_COLOR_TOP = glm::dvec3{0.5, 0.7, 1.0};
 const glm::dvec3 BACKGROUND_COLOR_BOTTOM = glm::dvec3{1, 1, 1};
 
-// The current scene composed of triangles
-std::vector<Triangle> TriangleScene;
+// The current scene composed of Meshes
+std::vector<Mesh> Scene;
 
 struct Fragment
 {
@@ -43,49 +43,60 @@ glm::dvec3 ray_color(const Ray& r)
     const double EPISILON = 0.0000001;
     double distance = -1;
     Triangle intersectTriangle;
+    glm::dvec3 pixelColor;
 
-    for (auto triangle: TriangleScene)
-    {
-        glm::dvec3 vertex0,vertex1,vertex2;
-        vertex0 = triangle.vertices[0].position;
-        vertex1 = triangle.vertices[1].position;
-        vertex2 = triangle.vertices[2].position;
-        glm::dvec3 edge1,edge2,h,s,q;
-        double a,f,u,v;
-        edge1 = vertex1 - vertex0;
-        edge2 = vertex2 - vertex0;
-        h = glm::cross(r.direction, edge2);
-        a = glm::dot(edge1, h);
-        if ( a > -EPISILON && a < EPISILON)
-            // Ray is parrallel to the triangle, skip
-            continue;
-        f = 1.0/a;
-        s = r.origin - vertex0;
-        u = f * glm::dot(s, h);
-        if ( u < 0.0 || u > 1.0)
-            continue;
-        q = glm::cross(s, edge1);
-        v = f * glm::dot(r.direction, q);
-        if (v < 0.0 || u + v > 1.0)
-            continue;
-        // Figure out the intersection point on the line
-        float t = f * glm::dot(edge2, q);
-        if (t > EPISILON && ( distance == -1 || t < distance ))
-        {
-            distance = t;
-            intersectTriangle = triangle;
+    for (auto mesh: Scene) {
+        for (auto triangle: mesh.getTriangles()) {
+            glm::dvec3 vertex0, vertex1, vertex2;
+            vertex0 = triangle.vertices[0].position + mesh.position;
+            vertex1 = triangle.vertices[1].position + mesh.position;
+            vertex2 = triangle.vertices[2].position + mesh.position;
+            glm::dvec3 edge1, edge2, h, s, q;
+            double a, f, u, v;
+            edge1 = vertex1 - vertex0;
+            edge2 = vertex2 - vertex0;
+            h = glm::cross(r.direction, edge2);
+            a = glm::dot(edge1, h);
+            if (a > -EPISILON && a < EPISILON)
+                // Ray is parrallel to the triangle, skip
+                continue;
+            f = 1.0 / a;
+            s = r.origin - vertex0;
+            u = f * glm::dot(s, h);
+            if (u < 0.0 || u > 1.0)
+                continue;
+            q = glm::cross(s, edge1);
+            v = f * glm::dot(r.direction, q);
+            if (v < 0.0 || u + v > 1.0)
+                continue;
+            // Figure out the intersection point on the line
+            float t = f * glm::dot(edge2, q);
+            if (t > EPISILON && (distance == -1 || t < distance)) {
+                distance = t;
+                intersectTriangle = triangle;
+                // (avgColor of all 3 vertices' normal)^2.2 + 0.25
+                pixelColor = glm::pow(glm::normalize(
+                        (triangle.vertices[0].normal + triangle.vertices[0].normal + triangle.vertices[3].normal) /
+                        glm::dvec3{3.f}), glm::dvec3{2.2});
+                pixelColor += glm::dvec3{0.25};
+            }
         }
     }
-
-    glm::dvec3 unit_direction = glm::normalize(r.direction);
-    double t = 0.5 * (unit_direction.y + 1.0);
-    return (1.0 - t) * BACKGROUND_COLOR_BOTTOM + t * BACKGROUND_COLOR_TOP;
+    if (distance != -1)
+    {
+    } else {
+        glm::dvec3 unit_direction = glm::normalize(r.direction);
+        double t = 0.5 * (unit_direction.y + 1.0);
+        pixelColor = (1.0 - t) * BACKGROUND_COLOR_BOTTOM + t * BACKGROUND_COLOR_TOP;
+    }
+    return pixelColor;
 }
 
 void load_scene() {
     Mesh monkey;
-    monkey.load_from_obj("../../assets/monkey");
-    TriangleScene = monkey.getTriangles();
+    monkey.load_from_obj("C:/Users/Danny Le/CLionProjects/MathIA/assets/monkey_smooth.obj");
+    monkey.position = glm::dvec3{0, 0, -2};
+    Scene.push_back(monkey);
 }
 
 int main() {
@@ -99,7 +110,7 @@ int main() {
         << "\n255\n";
 
     // Scene handling
-
+    load_scene();
 
     for (int y = RESOLUTION_Y - 1; y >= 0; --y)
     {
