@@ -29,8 +29,10 @@ const glm::dvec3 VERTICAL = glm::dvec3{0, VIEWPORT_HEIGHT, 0};
 const glm::dvec3 LOWER_LEFT_CORNER = CAMERA_ORIGIN - HORIZONTAL/2.0 - VERTICAL/2.0 - glm::dvec3{0, 0, FOCAL_LENGTH};
 
 // SCENE
-const glm::dvec3 BACKGROUND_COLOR_TOP = glm::dvec3{0.5, 0.7, 1.0};
+const glm::dvec3 BACKGROUND_COLOR_TOP = glm::dvec3{0.0, 0.0, 1.0};
 const glm::dvec3 BACKGROUND_COLOR_BOTTOM = glm::dvec3{1, 1, 1};
+
+glm::dvec3 COLOR_SEQUENCE = glm::dvec3{1.0};
 
 // The current scene composed of Meshes
 std::vector<Mesh> Scene;
@@ -116,20 +118,54 @@ glm::dvec3 ray_color(const Ray& r)
     if (distance != pow(2, 64) - 1)
     {
         //Triangle triangle = distanceMap[distance];
-        pixelColor = glm::pow(glm::normalize( (
-                intersectingTriangle.vertices[0].normal +
-                intersectingTriangle.vertices[1].normal +
-                intersectingTriangle.vertices[2].normal) / glm::dvec3{3.f}),
-                              glm::dvec3{2.2});
-        pixelColor += glm::dvec3{0.25};
-
+        /**
+        pixelColor = glm::normalize( (
+                glm::clamp(intersectingTriangle.vertices[0].normal, 0.0, 1.0) +
+                glm::clamp(intersectingTriangle.vertices[1].normal, 0.0, 1.0) +
+                glm::clamp(intersectingTriangle.vertices[2].normal, 0.0, 1.0)) / glm::dvec3{3.f});
+        **/
+        srand(pow((long)intersectingTriangle.index,2) );
+        /**
+        pixelColor = glm::dvec3{
+                pow(double(rand() % 1000) / 1000, 2),
+                pow(double(rand() % 1000) / 1000, 2),
+                pow(double(rand() % 1000) / 1000, 2)
+        };
+        **/
+        bool foundColor = false;
+        while (foundColor == false) {
+            int index = rand();
+            int n = 12;
+            pixelColor = glm::dvec3{
+                    double(index % n) / double(n - 1),
+                    double(int(index / n) % n) / double(n - 1),
+                    double(int(index / (n * n)) % n) / double(n - 1)
+            };
+            // Gamma correction
+            pixelColor = glm::pow(pixelColor, glm::dvec3{1 / 2.2});
+            pixelColor = glm::normalize(pixelColor);
+            if (glm::length(pixelColor)*glm::length(pixelColor) > 0.2)
+            {
+                if ((
+                        abs(pixelColor.x - pixelColor.y) +
+                        abs(pixelColor.x - pixelColor.z) +
+                        abs(pixelColor.x - pixelColor.z) +
+                        abs(pixelColor.y - pixelColor.z)) / 4 > 0.2 )
+                {
+                    foundColor = false;
+                    break;
+                }
+            }
+        }
+        //pixelColor = glm::dvec3{distance};
+        //pixelColor = glm::abs(pixelColor);
         //return glm::normalize(glm::dvec3{0,0,0});
     } else {
         glm::dvec3 unit_direction = glm::normalize(r.direction);
         double t = 0.5 * (unit_direction.y + 1.0);
         pixelColor = (1.0 - t) * BACKGROUND_COLOR_BOTTOM + t * BACKGROUND_COLOR_TOP;
     }
-    return pixelColor;
+    return glm::normalize(pixelColor );
 }
 
 void load_scene() {
@@ -145,7 +181,7 @@ void load_scene() {
         for (int y = -numMonkeyGrid; y <= numMonkeyGrid; y++) {
             Mesh newMonkey;
             newMonkey.load_from_obj("C:/Users/Danny Le/CLionProjects/MathIA/assets/monkey_smooth.obj");
-            newMonkey.setPosition(glm::dvec3{x*2, y*2, -20});
+            newMonkey.setPosition(glm::dvec3{x*2, y*2, -2});
             Scene.push_back(newMonkey);
         }
     }
@@ -177,7 +213,7 @@ int main() {
 
     for (int y = RESOLUTION_Y - 1; y >= 0; --y)
     {
-        std::cerr << "\rScanlines remaining: " << y << " " << std::flush;
+        std::cerr << "\rScanlines remaining: " << y << "\n" << std::flush;
         for (int x = 0; x < RESOLUTION_X; ++x)
         {
             double u = double(x) / (RESOLUTION_X - 1);
@@ -187,9 +223,14 @@ int main() {
             glm::dvec3 output_pixel = ray_color(r);
 
             // Output color component as RGB [0, 255]
-            std::cout << static_cast<int>(255.999 * output_pixel.x) << " "
-                    << static_cast<int>(255.999 * output_pixel.y) << " "
-                    << static_cast<int>(255.999 * output_pixel.z) << " "
+            glm::dvec3 postProcessedPixel = output_pixel;
+            // Gamma correction
+            //postProcessedPixel = glm::pow(output_pixel, glm::dvec3{1/2.2});
+            postProcessedPixel = glm::normalize(postProcessedPixel);
+
+            std::cout << static_cast<int>(255.999 * postProcessedPixel.x) << " "
+                    << static_cast<int>(255.999 * postProcessedPixel.y) << " "
+                    << static_cast<int>(255.999 * postProcessedPixel.z) << " "
                     << "\n";
 
         }
