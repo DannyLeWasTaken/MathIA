@@ -22,7 +22,9 @@ add_executable(MathIA
         src/main.cpp
         src/Ray.hpp
         src/Ray.cpp
-        src/mesh.cpp src/mesh.hpp)
+        src/mesh.cpp
+        src/mesh.hpp
+        src/tiny_obj_loader.cc)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE glm)
 target_link_libraries(${PROJECT_NAME} PRIVATE tinyobjloader)
