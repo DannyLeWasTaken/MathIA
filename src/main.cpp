@@ -1,5 +1,7 @@
 #include <iostream>
 #include <glm/glm.hpp>
+#include <glm/gtx/string_cast.hpp>
+#include <glm/gtx/transform.hpp>
 #include "Ray.hpp"
 #include "mesh.hpp"
 #include <vector>
@@ -10,7 +12,7 @@
 // CAMERA
 const int RESOLUTION_X = 256;
 const int RESOLUTION_Y = 256;
-const int ASPECT_RATIO = RESOLUTION_X / RESOLUTION_Y;
+const double ASPECT_RATIO = double(RESOLUTION_X) / double(RESOLUTION_Y);
 
 const double FOCAL_LENGTH = 1.0;
 const double VIEWPORT_HEIGHT = 2.0;
@@ -48,9 +50,14 @@ glm::dvec3 ray_color(const Ray& r)
     for (auto mesh: Scene) {
         for (auto triangle: mesh.getTriangles()) {
             glm::dvec3 vertex0, vertex1, vertex2;
-            vertex0 = triangle.vertices[0].position + mesh.position;
-            vertex1 = triangle.vertices[1].position + mesh.position;
-            vertex2 = triangle.vertices[2].position + mesh.position;
+            /**
+            vertex0 = cameraViewProjection * mesh.getTransformMatrix() * glm::dvec4(triangle.vertices[0].position, 1.0);
+            vertex1 = cameraViewProjection * mesh.getTransformMatrix() * glm::dvec4(triangle.vertices[1].position, 1.0);
+            vertex2 = cameraViewProjection * mesh.getTransformMatrix() * glm::dvec4(triangle.vertices[2].position, 1.0);
+            **/
+            vertex0 = triangle.vertices[0].position + mesh.getPosition();
+            vertex1 = triangle.vertices[1].position + mesh.getPosition();
+            vertex2 = triangle.vertices[2].position + mesh.getPosition();
             glm::dvec3 edge1, edge2, h, s, q;
             double a, f, u, v;
             edge1 = vertex1 - vertex0;
@@ -74,10 +81,11 @@ glm::dvec3 ray_color(const Ray& r)
             if (t > EPISILON && (distance == -1 || t < distance)) {
                 distance = t;
                 intersectTriangle = triangle;
-                // (avgColor of all 3 vertices' normal)^2.2 + 0.25
+                // gamma correction
                 pixelColor = glm::pow(glm::normalize(
                         (triangle.vertices[0].normal + triangle.vertices[0].normal + triangle.vertices[3].normal) /
                         glm::dvec3{3.f}), glm::dvec3{2.2});
+                // Increase brightness
                 pixelColor += glm::dvec3{0.25};
             }
         }
@@ -95,8 +103,20 @@ glm::dvec3 ray_color(const Ray& r)
 void load_scene() {
     Mesh monkey;
     monkey.load_from_obj("C:/Users/Danny Le/CLionProjects/MathIA/assets/monkey_smooth.obj");
-    monkey.position = glm::dvec3{0, 0, -2};
-    Scene.push_back(monkey);
+    //monkey.position = glm::dvec3{0, 0, -2};
+    monkey.setPosition(glm::dvec3{0, 0, -2});
+    //Scene.push_back(monkey);
+
+    Mesh cow;
+    cow.load_from_obj("C:/Users/Danny Le/CLionProjects/MathIA/assets/Cow.obj");
+    //cow.position = glm::dvec3{-1.95, -.5, 0.5};
+    //Scene.push_back(cow);
+
+    Mesh cornell;
+    cornell.load_from_obj("C:/Users/Danny Le/CLionProjects/MathIA/assets/cornell_box.obj");
+    //cornell.position = glm::dvec3{-250,-100,-400};
+    cornell.setPosition(glm::dvec3{0, -250, -400});
+    Scene.push_back(cornell);
 }
 
 int main() {
