@@ -6,8 +6,12 @@
 #include "mesh.hpp"
 #include <vector>
 #include <map>
+#include <omp.h>
 
 // CONFIGURATION
+
+// RENDERING POWER
+const int MAX_THREAD_RENDER = 8; // Maximum # of threads to be used while rendering
 
 // CAMERA
 const int RESOLUTION_X = 256;
@@ -47,49 +51,55 @@ glm::dvec3 ray_color(const Ray& r)
     Triangle intersectTriangle;
     glm::dvec3 pixelColor;
 
-    for (auto mesh: Scene) {
-        for (auto triangle: mesh.getTriangles()) {
-            glm::dvec3 vertex0, vertex1, vertex2;
-            /**
-            vertex0 = cameraViewProjection * mesh.getTransformMatrix() * glm::dvec4(triangle.vertices[0].position, 1.0);
-            vertex1 = cameraViewProjection * mesh.getTransformMatrix() * glm::dvec4(triangle.vertices[1].position, 1.0);
-            vertex2 = cameraViewProjection * mesh.getTransformMatrix() * glm::dvec4(triangle.vertices[2].position, 1.0);
-            **/
-            vertex0 = triangle.vertices[0].position + mesh.getPosition();
-            vertex1 = triangle.vertices[1].position + mesh.getPosition();
-            vertex2 = triangle.vertices[2].position + mesh.getPosition();
-            glm::dvec3 edge1, edge2, h, s, q;
-            double a, f, u, v;
-            edge1 = vertex1 - vertex0;
-            edge2 = vertex2 - vertex0;
-            h = glm::cross(r.direction, edge2);
-            a = glm::dot(edge1, h);
-            if (a > -EPISILON && a < EPISILON)
-                // Ray is parrallel to the triangle, skip
-                continue;
-            f = 1.0 / a;
-            s = r.origin - vertex0;
-            u = f * glm::dot(s, h);
-            if (u < 0.0 || u > 1.0)
-                continue;
-            q = glm::cross(s, edge1);
-            v = f * glm::dot(r.direction, q);
-            if (v < 0.0 || u + v > 1.0)
-                continue;
-            // Figure out the intersection point on the line
-            float t = f * glm::dot(edge2, q);
-            if (t > EPISILON && (distance == -1 || t < distance)) {
-                distance = t;
-                intersectTriangle = triangle;
-                // gamma correction
-                pixelColor = glm::pow(glm::normalize(
-                        (triangle.vertices[0].normal + triangle.vertices[0].normal + triangle.vertices[3].normal) /
-                        glm::dvec3{3.f}), glm::dvec3{2.2});
-                // Increase brightness
-                pixelColor += glm::dvec3{0.25};
+    //omp_set_num_threads(MAX_THREAD_RENDER);
+
+    #pragma omp parallel
+    {
+        for (auto mesh: Scene) {
+            #pragma omp for reduction(min:distance)
+            for (auto triangle: mesh.getTriangles()) {
+                glm::dvec3 vertex0, vertex1, vertex2;
+                /**
+                vertex0 = cameraViewProjection * mesh.getTransformMatrix() * glm::dvec4(triangle.vertices[0].position, 1.0);
+                vertex1 = cameraViewProjection * mesh.getTransformMatrix() * glm::dvec4(triangle.vertices[1].position, 1.0);
+                vertex2 = cameraViewProjection * mesh.getTransformMatrix() * glm::dvec4(triangle.vertices[2].position, 1.0);
+                **/
+                vertex0 = triangle.vertices[0].position + mesh.getPosition();
+                vertex1 = triangle.vertices[1].position + mesh.getPosition();
+                vertex2 = triangle.vertices[2].position + mesh.getPosition();
+                glm::dvec3 edge1, edge2, h, s, q;
+                double a, f, u, v;
+                edge1 = vertex1 - vertex0;
+                edge2 = vertex2 - vertex0;
+                h = glm::cross(r.direction, edge2);
+                a = glm::dot(edge1, h);
+                if (a > -EPISILON && a < EPISILON)
+                    // Ray is parrallel to the triangle, skip
+                    continue;
+                f = 1.0 / a;
+                s = r.origin - vertex0;
+                u = f * glm::dot(s, h);
+                if (u < 0.0 || u > 1.0)
+                    continue;
+                q = glm::cross(s, edge1);
+                v = f * glm::dot(r.direction, q);
+                if (v < 0.0 || u + v > 1.0)
+                    continue;
+                // Figure out the intersection point on the line
+                float t = f * glm::dot(edge2, q);
+                if (t > EPISILON && (distance == -1 || t < distance)) {
+                    distance = t;
+                    intersectTriangle = triangle;
+                    // gamma correction
+                    pixelColor = glm::pow(glm::normalize(
+                            (triangle.vertices[0].normal + triangle.vertices[0].normal + triangle.vertices[3].normal) /
+                            glm::dvec3{3.f}), glm::dvec3{2.2});
+                    // Increase brightness
+                    pixelColor += glm::dvec3{0.25};
+                }
             }
         }
-    }
+    };
     if (distance != -1)
     {
     } else {
