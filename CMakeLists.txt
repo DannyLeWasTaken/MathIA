@@ -18,6 +18,8 @@ FetchContent_Declare(tinyobjloader
         GIT_TAG v1.0.6)
 FetchContent_MakeAvailable(tinyobjloader)
 
+find_package(OpenMP)
+
 add_executable(MathIA
         src/main.cpp
         src/Ray.hpp
@@ -28,3 +30,6 @@ add_executable(MathIA
 
 target_link_libraries(${PROJECT_NAME} PRIVATE glm)
 target_link_libraries(${PROJECT_NAME} PRIVATE tinyobjloader)
+if(OpenMP_CXX_FOUND)
+    target_link_libraries(${PROJECT_NAME} PUBLIC OpenMP::OpenMP_CXX)
+endif()

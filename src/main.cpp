@@ -7,6 +7,7 @@
 #include <vector>
 #include <map>
 #include <omp.h>
+#include <map>
 
 // CONFIGURATION
 
@@ -47,23 +48,30 @@ glm::dvec3 ray_color(const Ray& r)
 {
     // Moller-Trumbore intersection algorithm
     const double EPISILON = 0.0000001;
-    double distance = -1;
-    Triangle intersectTriangle;
+    double lastDistance = pow(2, 64) - 1;
+    double distance = pow(2, 64) - 1;
     glm::dvec3 pixelColor;
+    std::map<double, int> threadDistances;
+    std::map<double, Triangle> threadTriangles;
+    Triangle intersectingTriangle;
 
-    //omp_set_num_threads(MAX_THREAD_RENDER);
-
-    #pragma omp parallel
     {
+        //#pragma omp parallel default(none) shared(Scene,EPISILON,r,distance,distanceMap)
         for (auto mesh: Scene) {
-            #pragma omp for reduction(min:distance)
+            threadTriangles.clear();
+            threadDistances.clear();
+
+            omp_set_num_threads(MAX_THREAD_RENDER);
+            #pragma omp parallel for default(none) reduction(min:distance) shared(Scene,EPISILON,r,mesh,threadTriangles,threadDistances)
             for (auto triangle: mesh.getTriangles()) {
+                const int THREAD_ID = omp_get_thread_num();
                 glm::dvec3 vertex0, vertex1, vertex2;
                 /**
                 vertex0 = cameraViewProjection * mesh.getTransformMatrix() * glm::dvec4(triangle.vertices[0].position, 1.0);
                 vertex1 = cameraViewProjection * mesh.getTransformMatrix() * glm::dvec4(triangle.vertices[1].position, 1.0);
                 vertex2 = cameraViewProjection * mesh.getTransformMatrix() * glm::dvec4(triangle.vertices[2].position, 1.0);
                 **/
+                //std::cerr << omp_get_thread_num() << std::endl;
                 vertex0 = triangle.vertices[0].position + mesh.getPosition();
                 vertex1 = triangle.vertices[1].position + mesh.getPosition();
                 vertex2 = triangle.vertices[2].position + mesh.getPosition();
@@ -86,22 +94,36 @@ glm::dvec3 ray_color(const Ray& r)
                 if (v < 0.0 || u + v > 1.0)
                     continue;
                 // Figure out the intersection point on the line
-                float t = f * glm::dot(edge2, q);
-                if (t > EPISILON && (distance == -1 || t < distance)) {
+                double t = f * glm::dot(edge2, q);
+                if (t > EPISILON && t < distance) {
                     distance = t;
-                    intersectTriangle = triangle;
-                    // gamma correction
-                    pixelColor = glm::pow(glm::normalize(
-                            (triangle.vertices[0].normal + triangle.vertices[0].normal + triangle.vertices[3].normal) /
-                            glm::dvec3{3.f}), glm::dvec3{2.2});
-                    // Increase brightness
-                    pixelColor += glm::dvec3{0.25};
+                    #pragma omp critical
+                    {
+                        threadDistances[t] = THREAD_ID;
+                        threadTriangles[THREAD_ID] = triangle;
+                    };
                 }
+            }
+
+            if (distance < lastDistance)
+            {
+                lastDistance = distance;
+                intersectingTriangle = threadTriangles[threadDistances[distance]];
+                //memcpy(intersectingTriangle, triangles[distances[distance]], sizeof(Triangle));
             }
         }
     };
-    if (distance != -1)
+    if (distance != pow(2, 64) - 1)
     {
+        //Triangle triangle = distanceMap[distance];
+        pixelColor = glm::pow(glm::normalize( (
+                intersectingTriangle.vertices[0].normal +
+                intersectingTriangle.vertices[1].normal +
+                intersectingTriangle.vertices[2].normal) / glm::dvec3{3.f}),
+                              glm::dvec3{2.2});
+        pixelColor += glm::dvec3{0.25};
+
+        //return glm::normalize(glm::dvec3{0,0,0});
     } else {
         glm::dvec3 unit_direction = glm::normalize(r.direction);
         double t = 0.5 * (unit_direction.y + 1.0);
@@ -116,6 +138,17 @@ void load_scene() {
     //monkey.position = glm::dvec3{0, 0, -2};
     monkey.setPosition(glm::dvec3{0, 0, -2});
     //Scene.push_back(monkey);
+
+    int numMonkeyGrid = 0;
+    for (int x = -numMonkeyGrid; x <= numMonkeyGrid; x++)
+    {
+        for (int y = -numMonkeyGrid; y <= numMonkeyGrid; y++) {
+            Mesh newMonkey;
+            newMonkey.load_from_obj("C:/Users/Danny Le/CLionProjects/MathIA/assets/monkey_smooth.obj");
+            newMonkey.setPosition(glm::dvec3{x*2, y*2, -20});
+            Scene.push_back(newMonkey);
+        }
+    }
 
     Mesh cow;
     cow.load_from_obj("C:/Users/Danny Le/CLionProjects/MathIA/assets/Cow.obj");
