@@ -1,10 +1,9 @@
 #include <iostream>
 #include <glm/glm.hpp>
-#include "ray.hpp"
-#include "vertex.hpp"
+#include "Ray.hpp"
+#include "mesh.hpp"
 #include <vector>
 #include <map>
-#include <tiny_obj_loader.h>
 
 // CONFIGURATION
 
@@ -37,8 +36,8 @@ struct Fragment
 
 std::map<int, std::map<int, Fragment>> sceneBuffer;
 
-// Calculate color of a ray
-glm::dvec3 ray_color(const ray& r)
+// Calculate color of a Ray
+glm::dvec3 ray_color(const Ray& r)
 {
     // Moller-Trumbore intersection algorithm
     const double EPISILON = 0.0000001;
@@ -101,7 +100,7 @@ int main() {
             double u = double(x) / (RESOLUTION_X - 1);
             double v = double(y) / (RESOLUTION_Y - 1);
 
-            ray r(CAMERA_ORIGIN, LOWER_LEFT_CORNER + u*HORIZONTAL + v*VERTICAL - CAMERA_ORIGIN);
+            Ray r(CAMERA_ORIGIN, LOWER_LEFT_CORNER + u * HORIZONTAL + v * VERTICAL - CAMERA_ORIGIN);
             glm::dvec3 output_pixel = ray_color(r);
 
             // Output color component as RGB [0, 255]

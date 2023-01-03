@@ -7,13 +7,13 @@
 
 #include <glm/vec3.hpp>
 
-class ray {
+class Ray {
 public:
     glm::dvec3 origin;
     glm::dvec3 direction;
     double length;
 
-    ray(const glm::dvec3& origin, const glm::dvec3& direction)
+    Ray(const glm::dvec3& origin, const glm::dvec3& direction)
         : origin(origin), direction(direction)
     {}
 

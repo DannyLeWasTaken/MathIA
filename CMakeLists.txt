@@ -20,9 +20,9 @@ FetchContent_MakeAvailable(tinyobjloader)
 
 add_executable(MathIA
         src/main.cpp
-        src/ray.hpp
-        src/ray.cpp
-        )
+        src/Ray.hpp
+        src/Ray.cpp
+        src/mesh.cpp src/mesh.hpp)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE glm)
 target_link_libraries(${PROJECT_NAME} PRIVATE tinyobjloader)

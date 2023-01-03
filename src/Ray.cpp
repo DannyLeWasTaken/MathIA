@@ -2,8 +2,8 @@
 // Created by Danny Le on 2022-12-29.
 //
 
-#include "ray.hpp"
+#include "Ray.hpp"
 
-glm::dvec3 ray::at(double t) const {
+glm::dvec3 Ray::at(double t) const {
     return origin + t*direction;
 }
