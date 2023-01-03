@@ -4,7 +4,7 @@
 
 #ifndef MATHIA_MESH_HPP
 #define MATHIA_MESH_HPP
-#include <glm/vec3.hpp>
+#include <glm/glm.hpp>
 #include <string>
 #include <vector>
 
@@ -25,9 +25,21 @@ public:
 private:
     std::vector<Vertex> vertices;
     std::vector<Triangle> triangles;
+    glm::dvec3 position;
+    glm::dvec3 rotation;
+public:
+    void setPosition(const glm::dvec3 &position);
+
+public:
+    const glm::dvec3 &getPosition() const;
+
+private:
+    glm::dmat4 transformMatrix;
+public:
+    const glm::dmat4 &getTransformMatrix() const;
+
 public:
     const std::vector<Triangle> &getTriangles() const;
-    glm::dvec3 position;
 
 public:
     const std::vector<Vertex> &getVertices() const;

@@ -4,6 +4,7 @@
 #include "mesh.hpp"
 #include <vector>
 #include <iostream>
+#include <glm/gtx/transform.hpp>
 
 #include <tiny_obj_loader.h>
 
@@ -86,4 +87,23 @@ const std::vector<Vertex> &Mesh::getVertices() const {
 
 const std::vector<Triangle> &Mesh::getTriangles() const {
     return triangles;
+}
+
+const glm::dmat4 &Mesh::getTransformMatrix() const {
+    return transformMatrix;
+}
+
+const glm::dvec3 &Mesh::getPosition() const {
+    return position;
+}
+
+void Mesh::setPosition(const glm::dvec3 &position) {
+    Mesh::position = position;
+    glm::dmat4 locationMatrix = glm::translate(position);
+    glm::mat4 angleMatrix = glm::rotate(
+            locationMatrix,
+            (double)glm::radians(360.f),
+            rotation
+            );
+    transformMatrix = angleMatrix;
 }
