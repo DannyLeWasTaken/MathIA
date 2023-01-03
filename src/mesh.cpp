@@ -32,6 +32,7 @@ bool Mesh::load_from_obj(const char* filename) {
         std::cerr << msg << std::endl;
     }
 
+    int i = 0;
     for (size_t s = 0; s < shapes.size(); s++)
     {
         size_t index_offset = 0;
@@ -74,7 +75,9 @@ bool Mesh::load_from_obj(const char* filename) {
                 vertices.push_back(new_vert);
                 new_triangle.vertices[v] = new_vert;
             }
+            new_triangle.index = i;
             triangles.push_back(new_triangle);
+            i++;
             index_offset += fv;
         }
     }
