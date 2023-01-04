@@ -170,7 +170,7 @@ glm::dvec3 ray_color(const Ray& r)
 
 void load_scene() {
     Mesh monkey;
-    monkey.load_from_obj("C:/Users/Danny Le/CLionProjects/MathIA/assets/monkey_smooth.obj");
+    monkey.load_from_obj("C:/Users/Danny/CLionProjects/MathIA/assets/monkey_smooth.obj");
     //monkey.position = glm::dvec3{0, 0, -2};
     monkey.setPosition(glm::dvec3{0, 0, -2});
     //Scene.push_back(monkey);
@@ -180,19 +180,19 @@ void load_scene() {
     {
         for (int y = -numMonkeyGrid; y <= numMonkeyGrid; y++) {
             Mesh newMonkey;
-            newMonkey.load_from_obj("C:/Users/Danny Le/CLionProjects/MathIA/assets/monkey_smooth.obj");
+            newMonkey.load_from_obj("C:/Users/Danny/CLionProjects/MathIA/assets/monkey_smooth.obj");
             newMonkey.setPosition(glm::dvec3{x*2, y*2, -2});
             Scene.push_back(newMonkey);
         }
     }
 
     Mesh cow;
-    cow.load_from_obj("C:/Users/Danny Le/CLionProjects/MathIA/assets/Cow.obj");
+    cow.load_from_obj("C:/Users/Danny/CLionProjects/MathIA/assets/Cow.obj");
     //cow.position = glm::dvec3{-1.95, -.5, 0.5};
     //Scene.push_back(cow);
 
     Mesh cornell;
-    cornell.load_from_obj("C:/Users/Danny Le/CLionProjects/MathIA/assets/cornell_box.obj");
+    cornell.load_from_obj("C:/Users/Danny/CLionProjects/MathIA/assets/cornell_box.obj");
     //cornell.position = glm::dvec3{-250,-100,-400};
     cornell.setPosition(glm::dvec3{25, -275, -300});
     Scene.push_back(cornell);
