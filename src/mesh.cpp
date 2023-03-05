@@ -4,10 +4,21 @@
 #include "mesh.hpp"
 #include <vector>
 #include <iostream>
+#include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>
+#include <chrono>
 
 #include <tiny_obj_loader.h>
 
+glm::dvec3 sampleRandomColor() {
+    int index = rand();
+    int n = 16;
+    return glm::dvec3{
+            double(index % n) / double(n - 1),
+            double(int(index / n) % n) / double(n - 1),
+            double(int(index / (n * n)) % n) / double(n - 1)
+    };
+}
 
 
 bool Mesh::load_from_obj(const char* filename) {
@@ -27,14 +38,35 @@ bool Mesh::load_from_obj(const char* filename) {
             true
             );
 
-    if (!msg.empty())
+    if (!msg.empty() || shapes.empty())
     {
         std::cerr << msg << std::endl;
     }
 
+
     int i = 0;
     for (size_t s = 0; s < shapes.size(); s++)
     {
+        glm::dvec3 shapeColor;
+        srand(std::chrono::high_resolution_clock::now().time_since_epoch().count());
+        srand(double(s) * double(s) * double(rand()) * 3.145 );
+        while (true) {
+            shapeColor = sampleRandomColor();
+            shapeColor = glm::normalize(shapeColor);
+            if (glm::length(shapeColor)*glm::length(shapeColor) > 0.2)
+            {
+                if ((
+                            abs(shapeColor.x - shapeColor.y) +
+                            abs(shapeColor.x - shapeColor.z) +
+                            abs(shapeColor.x - shapeColor.z) +
+                            abs(shapeColor.y - shapeColor.z)) / 4 > 0.2 )
+                {
+                    break;
+                }
+            }
+        }
+
+
         size_t index_offset = 0;
         // iterate over all faces
         for (size_t f = 0; f < shapes[s].mesh.num_face_vertices.size(); f++) {
@@ -72,13 +104,19 @@ bool Mesh::load_from_obj(const char* filename) {
                 new_vert.normal.y = ny;
                 new_vert.normal.z = nz;
 
+                new_vert.shapeId  = s;
+                new_vert.color = shapeColor;
+
                 vertices.push_back(new_vert);
                 new_triangle.vertices[v] = new_vert;
             }
             new_triangle.index = i;
+            new_triangle.shapeId = s;
+            new_triangle.triangleColor = sampleRandomColor();
             triangles.push_back(new_triangle);
             i++;
             index_offset += fv;
+            shapes[s].mesh.material_ids[f];
         }
     }
     return true;

@@ -8,16 +8,22 @@
 #include <string>
 #include <vector>
 
+
 struct Vertex
 {
     glm::dvec3 position;
     glm::dvec3 normal;
+    unsigned int shapeId;
+    glm::dvec3 color;
 };
 
 struct Triangle
 {
     Vertex vertices[3];
     int index;
+    unsigned int shapeId;
+    glm::dvec3 color;
+    glm::dvec3 triangleColor;
 };
 
 class Mesh {
