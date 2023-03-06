@@ -160,12 +160,12 @@ glm::dvec3 ray_color(const Ray& r)
 
 void load_scene() {
     Mesh monkey;
-    monkey.load_from_obj("C:/Users/Danny/CLionProjects/MathIA/assets/monkey_smooth.obj");
+    //monkey.load_from_obj("C:/Users/Danny/CLionProjects/MathIA/assets/monkey_smooth.obj");
     //monkey.position = glm::dvec3{0, 0, -2};
     monkey.setPosition(glm::dvec3{0, 0, -2});
     //Scene.push_back(monkey);
 
-
+    /**
     int numMonkeyGrid = 1;
     int totalMonkeys = 0;
     for (int x = -numMonkeyGrid; x <= numMonkeyGrid; x++)
@@ -178,6 +178,7 @@ void load_scene() {
             totalMonkeys++;
         }
     }
+    **/
 
 
     //Mesh cow;
@@ -204,6 +205,18 @@ void load_scene() {
     //chess.load_from_obj("C:/Users/Danny/CLionProjects/MathIA/assets/chess.obj");
     chess.setPosition(glm::dvec3{0, -.2, -.6});
     //Scene.push_back(chess);
+
+    Mesh minecraft;
+    //minecraft.load_from_obj("C:/Users/Danny/CLionProjects/MathIA/assets/forest.obj");
+    //minecraft.setPosition(glm::dvec3{0, -3.656, -62.0128});
+    //minecraft.setPosition(glm::dvec3{0 , -4.0165, -20.3279});
+    //Scene.push_back(minecraft);
+
+    Mesh cyberpunk;
+    cyberpunk.load_from_obj("C:/Users/Danny/CLionProjects/MathIA/assets/cyberpunkcar.obj");
+    //minecraft.setPosition(glm::dvec3{0, -3.656, -62.0128});
+    cyberpunk.setPosition(glm::dvec3{0 , -1.5, -5});
+    Scene.push_back(cyberpunk);
 
     int num_triangles = 0;
     for (auto& mesh: Scene) {
