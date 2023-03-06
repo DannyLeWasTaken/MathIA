@@ -19,8 +19,14 @@ In the directory of the project:
 - cmake ./ build
 - Import asset of your choice
 - Go into build directory
-- Run: ``main.exe > image.ppm``
-- Open the image in desired ppm viewer
+- Run: ``[BUILD PATH]\MathIA.exe >> image.ppm``
+- Open the ``image.ppm``` in desired ppm viewer
+
+## Ideal build instructions
+- Pull the project from VSC using CLion
+- Load the CMake file
+- ``.\cmake-build-debug\MathIA.exe >> image.ppm``
+- Open ``image.ppm`` in desired ppm viewer
 
 ## To modify
 - To modify this project, look in ``main.cpp`` and mainly ``load_scene()``
