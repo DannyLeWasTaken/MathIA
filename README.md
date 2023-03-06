@@ -13,3 +13,23 @@ occluded by another triangle, will have the intersection algorithm performed
 upon it.
 3. One-sided intersection of Moller-Trumbore intersection algorithm.
 Implementing this allows you to create certain optimization that would make the algorithm faster.
+
+# Build instructions
+In the directory of the project:
+- cmake ./ build
+- Import asset of your choice
+- Go into build directory
+- Run: ``main.exe > image.ppm``
+- Open the image in desired ppm viewer
+
+## To modify
+- To modify this project, look in ``main.cpp`` and mainly ``load_scene()``
+
+## How shading works
+
+`t = Ray distance`
+- `((v1.Normal * u + v2.Normal * v + v3.Normal * w) * triangle.Color / abs(t))^(1/2.2)`
+- Tends to produce "good enough" differences in meshes so that it's usable to show off diagrams
+- There is however an optional method to comment out all said shading and set ``pixelColor`` to: ``intersectingTriangle.triangle.triangleColor``
+  - Triangle color represents a unique color assigned to the triangle upon load
+  - Color represents a unique color assigned to the triangle's shape upon load

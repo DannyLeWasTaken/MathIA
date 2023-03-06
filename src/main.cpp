@@ -187,9 +187,9 @@ void load_scene() {
     //Scene.push_back(cow);
 
     Mesh cornell;
-    //cornell.load_from_obj("C:/Users/Danny/CLionProjects/MathIA/assets/cornell.obj");
-    //cornell.setPosition(glm::dvec3{25,-275,-300});
-    //Scene.push_back(cornell);
+    cornell.load_from_obj("C:/Users/Danny/CLionProjects/MathIA/assets/cornell.obj");
+    cornell.setPosition(glm::dvec3{25,-275,-300});
+    Scene.push_back(cornell);
 
     Mesh sponza;
     //sponza.load_from_obj("C:/Users/Danny/CLionProjects/MathIA/assets/sponza.obj");
